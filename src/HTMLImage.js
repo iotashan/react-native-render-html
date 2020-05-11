@@ -82,7 +82,6 @@ export default class HTMLImage extends PureComponent {
         if (styleWidth && styleHeight) {
             const parsedWidth = typeof styleWidth === 'string' && styleWidth.search('%') !== -1 ? styleWidth : parseInt(styleWidth, 10);
             const parsedHeight = typeof styleHeight === 'string' && styleHeight.search('%') !== -1 ? styleHeight : parseInt(styleHeight, 10);
-
             if (!imagesMaxWidth) {
                 return this.mounted && this.setState({
                     width: parsedWidth,
@@ -91,22 +90,25 @@ export default class HTMLImage extends PureComponent {
             }
             const optimalWidth = imagesMaxWidth <= parsedWidth ? imagesMaxWidth : parsedWidth;
             const optimalHeight = (optimalWidth * parsedHeight) / parsedWidth;
-            this.mounted && this.setState({ width: optimalWidth, height: optimalHeight, error: false });
+            return this.mounted && this.setState({
+                width: optimalWidth,
+                height: optimalHeight,
+                error: false
+            });
         }
-        
         // Fetch image dimensions only if they aren't supplied or if with or height is missing
         Image.getSize(
             source.uri,
             (originalWidth, originalHeight) => {
                 if (!imagesMaxWidth) {
-                    return this.mounted && this.setState({ width: originalWidth, height: originalHeight });
+                   return this.mounted && this.setState({ width: originalWidth, height: originalHeight });
                 }
                 const optimalWidth = imagesMaxWidth <= originalWidth ? imagesMaxWidth : originalWidth;
                 const optimalHeight = (optimalWidth * originalHeight) / originalWidth;
-                this.mounted && this.setState({ width: optimalWidth, height: optimalHeight, error: false });
+                return this.mounted && this.setState({ width: optimalWidth, height: optimalHeight, error: false });
             },
             () => {
-                this.mounted && this.setState({ error: true });
+                return this.mounted && this.setState({ error: true });
             }
         );
     }
